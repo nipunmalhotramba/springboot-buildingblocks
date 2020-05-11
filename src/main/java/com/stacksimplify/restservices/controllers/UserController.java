@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,8 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.stacksimplify.restservices.entities.User;
+import com.stacksimplify.restservices.exceptions.UserAlreadyExistsException;
+import com.stacksimplify.restservices.exceptions.UserNotFoundException;
 import com.stacksimplify.restservices.services.UserServices;
 
 @RestController
@@ -27,21 +34,51 @@ public class UserController {
 		return UserServices.getAllUsers();
 	}
 	
+	/*
+	 * //Post - Create a new user
+	 * 
+	 * @
+	 *PostMapping("/users")
+	/*
+	 * public User createUser(@RequestBody User user_body) { try { return
+	 * UserServices.createUser(user_body); } catch (UserAlreadyExistsException ex) {
+	 * throw new ResponseStatusException(HttpStatus.BAD_REQUEST,ex.getMessage()); }
+	 * 
+	 * }
+	 */
+	
 	//Post - Create a new user
 	@PostMapping("/users")
-	public User createUser(@RequestBody User user_body) {
-		return UserServices.createUser(user_body);
+	public ResponseEntity<Void> createUser(@RequestBody User user_body,UriComponentsBuilder builder) {
+		try {
+			UserServices.createUser(user_body);
+			
+			HttpHeaders header_txt=new HttpHeaders();
+			header_txt.setLocation(builder.path("/users/{id}").buildAndExpand(user_body.getId()).toUri());
+			
+			return new ResponseEntity<Void>(header_txt,HttpStatus.CREATED);
+			
+		} catch (UserAlreadyExistsException ex) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,ex.getMessage());
+		}
+		
 	}
 	
 	//Get - UserById
 	@GetMapping("/users/{user_id}")
 	public Optional<User> getUserById(@PathVariable("user_id") Long user_id){
-		return UserServices.getUserById(user_id);
+		
+		try {
+			return UserServices.getUserById(user_id);
+		} catch (UserNotFoundException ex) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,ex.getMessage());
+		}
 	}
 	
 	//Put - Update UserById [id to update and User object to replace with]
 	@PutMapping("/users/{id}")
 	public User UpdateUserById(@PathVariable("id") Long id, @RequestBody User user) {
+		
 		return UserServices.UpdateUserById(id, user);
 	}
 	
@@ -51,10 +88,23 @@ public class UserController {
 		UserServices.DeleteUserById(user_PK);
 	}
 	
+	/*
+	 * //find by ssn
+	 * 
+	 * @GetMapping("/users/findssn/{ssn}") public User
+	 * findByssn(@PathVariable("ssn") String ssn) { return
+	 * UserServices.findbyssn(ssn); }
+	 */
+		
 	//find by ssn
 	@GetMapping("/users/findssn/{ssn}")
 	public User findByssn(@PathVariable("ssn") String ssn) {
-		return UserServices.findbyssn(ssn);
+		
+		try {
+			return UserServices.findbyssn(ssn);
+		} catch (UserNotFoundException ex) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,ex.getMessage());
+		}
 	}
 	
 	

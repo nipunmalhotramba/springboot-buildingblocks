@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name="user_table")
@@ -14,9 +16,11 @@ public class User {
 	@GeneratedValue
 	private Long Id;
 	
+	@NotEmpty(message="User Name is expected to have a value it is Unique Key")
 	@Column(name="User_name", length=50, nullable=false,unique=true)
 	private String username;
 	
+	@Size(min=2,max=8,message="First Name should be more than 1 character and less than 8 characters")
 	@Column(name="First_name", length=50, nullable=false)
 	private String firstname;
 	

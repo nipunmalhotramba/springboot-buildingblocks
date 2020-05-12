@@ -84,4 +84,9 @@ public class UserServices {
 					}
 			return UserRepository.findByssn(ssn);
 		}
+		
+	//Get user by Username
+	public User getUserByUsername(String user_name) {
+		return UserRepository.findByUsername(user_name);
+	}
 }

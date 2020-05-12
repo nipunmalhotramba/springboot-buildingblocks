@@ -11,7 +11,9 @@ public interface UserRepository extends JpaRepository<User,Long> {
 	//Any field you want to return by then use first letter capital
 	//findBy<Field_Name> 
 	//Creating a custom method returning object User type
-	User findByssn(String ssn); //this by just naming the method knows to connect to field ssn
+	User findByssn(String ssn); //this by just naming the method as findBy...knows to connect to field ssn
+	
+	User findByUsername(String user_name);
 	
 
 }
